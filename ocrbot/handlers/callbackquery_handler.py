@@ -16,8 +16,7 @@ def button_click(update:Update,context:CallbackContext):
     query.answer()
     filepath=get_file_path(query.message.chat_id,query.message.message_id)
     if filepath is not None:
-        query.edit_message_text("Extracting text please wait ...")
-        data=requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={filepath}&language={query.data}&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True")
+        data=requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={filepath}&language=eng&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True")
         data=data.json()
         if data['IsErroredOnProcessing']==False:
             message=data['ParsedResults'][0]['ParsedText']
