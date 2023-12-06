@@ -14,11 +14,10 @@ def extract_image(update: Update, context: CallbackContext):
     '''
     chat_id = update.effective_chat.id
     file_id = update.message.photo[-1].file_id
-    newFile = context.bot.get_file(file_id)
-    file_path = newFile.file_path
+    file_path = context.bot.get_file(file_id).file_path
     m = update.message.reply_text('Extracting...', quote=True)
     if file_path is not None:
-        data = requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={filepath}&language=chs&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True").json()
+        data = requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={file_path}&language=chs&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True").json()
         if data['IsErroredOnProcessing'] == False:
             message = data['ParsedResults'][0]['ParsedText']
             query.edit_message_text(text=message)
