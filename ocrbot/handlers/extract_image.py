@@ -1,20 +1,28 @@
-from ocrbot.helpers.decorators import send_typing_action
-from ocrbot.helpers.mock_database import insert_file_path
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+import requests
+
+from telegram import Update
 from telegram.ext import CallbackContext
 
+from ocrbot.config import API_KEY
+from ocrbot.helpers.decorators import send_typing_action
+
+
 @send_typing_action
-def extract_image(update:Update,context:CallbackContext):
+def extract_image(update: Update, context: CallbackContext):
     '''
     This function is called when the user sends a photo.
     '''
-    chat_id=update.effective_chat.id
+    chat_id = update.effective_chat.id
     file_id = update.message.photo[-1].file_id
-    newFile=context.bot.get_file(file_id)
-    file_path= newFile.file_path
-
-    keyboard = [[InlineKeyboardButton("English", callback_data='eng')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    m = update.message.reply_text('Your text from the image will be extracted in : ', reply_markup=reply_markup,quote=True)
-    insert_file_path(chat_id,m.message_id,file_path)
+    newFile = context.bot.get_file(file_id)
+    file_path = newFile.file_path
+    m = update.message.reply_text('Extracting...', quote=True)
+    if file_path is not None:
+        data = requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={filepath}&language=eng&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True").json()
+        if data['IsErroredOnProcessing'] == False:
+            message = data['ParsedResults'][0]['ParsedText']
+            query.edit_message_text(text=message)
+        else:
+            query.edit_message_text(text="⚠️Something went wrong, please try again later ⚠️")
+    else:
+        query.edit_message_text("Something went wrong, Send this image again")
