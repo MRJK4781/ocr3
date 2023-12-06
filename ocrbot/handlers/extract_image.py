@@ -10,11 +10,8 @@ from ocrbot.helpers.decorators import send_typing_action
 tr = SyncTranslator()
 
 def sync_tr(text: str):
-    lang = tr.detect(text)
-    if lang != "en":
-        return text
-    translation = tr.translate(text, targetlang="zh")
-    return translation.text
+    trs = tr.translate(text, targetlang="zh")
+    return trs.text
 
 @send_typing_action
 def extract_image(update: Update, context: CallbackContext):
@@ -26,7 +23,7 @@ def extract_image(update: Update, context: CallbackContext):
     file_path = context.bot.get_file(file_id).file_path
     m = update.message.reply_text('...', quote=True)
     if file_path is not None:
-        data = requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={file_path}&language=chs&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True").json()
+        data = requests.get(f"https://api.ocr.space/parse/imageurl?apikey={API_KEY}&url={file_path}&language=eng&detectOrientation=True&filetype=JPG&OCREngine=1&isTable=True&scale=True").json()
         if data['IsErroredOnProcessing'] == False:
             message = data['ParsedResults'][0]['ParsedText']
             chtext = sync_tr(message)
